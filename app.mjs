@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
   res.send("hello bro");
 });
 
-app.get("/dl", (req, res) => {
+app.get("/download", (req, res) => {
   try {
     const fileId = req.query.file;
     const title = req.query.title;
