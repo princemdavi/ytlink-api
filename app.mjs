@@ -16,11 +16,17 @@ app.get("/download", async (req, res) => {
   try {
     const fileId = req.query.file;
     const title = req.query.title;
+    const size = req.query.size;
 
-    if (!fileId || !title)
-      return res.status(400).json({ msg: "file and title is needed" });
+    if (!fileId || !title || !size)
+      return res
+        .status(400)
+        .json({ msg: "file id, size and title are needed" });
 
-    res.attachment(`${title}.mp4`);
+    res.set({
+      "Content-Length": parseInt(size),
+      "Content-Disposition": `attachment; filename=${title}`,
+    });
 
     const resp = await drive.files.get(
       {
