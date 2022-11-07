@@ -31,7 +31,7 @@ app.get("/download", async (req, res) => {
 
     const resp = await drive.files.get(
       {
-        fileId,
+        fileId: file.file_id,
         alt: "media",
       },
       { responseType: "stream" }
