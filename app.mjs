@@ -12,25 +12,25 @@ app.get("/", (req, res) => {
   res.send("hello bro");
 });
 
-app.get("/download", (req, res) => {
+app.get("/download", async (req, res) => {
   try {
     const fileId = req.query.file;
     const title = req.query.title;
 
-    res.attachment(`${title}${path.extname(fileId)}`);
+    if (!fileId || !title)
+      return res.status(400).json({ msg: "file and title is needed" });
 
-    drive.files
-      .get({
+    res.attachment(`${title}.mp4`);
+
+    const resp = await drive.files.get(
+      {
         fileId,
         alt: "media",
-      })
-      .on("end", function () {
-        console.log("Done");
-      })
-      .on("error", function (err) {
-        console.log("Error during download", err);
-      })
-      .pipe(res);
+      },
+      { responseType: "stream" }
+    );
+
+    resp.data.pipe(res);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
