@@ -43,4 +43,12 @@ app.get("/download", async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT || 5000, console.log("server running..."));
+app.listen(process.env.PORT || 5000, async () => {
+  console.log("server running...");
+  try {
+    await database();
+    console.log("connected to db successfully");
+  } catch (error) {
+    console.log("something went wrong");
+  }
+});
