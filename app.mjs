@@ -26,7 +26,7 @@ app.get("/download", async (req, res) => {
 
     res.set({
       "Content-Length": file.file_size,
-      "Content-Disposition": `attachment; filename=${file.title}`,
+      "Content-Disposition": `attachment; filename=${file.title}.${file.ext}`,
     });
 
     const resp = await drive.files.get(
