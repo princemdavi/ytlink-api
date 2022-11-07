@@ -2,6 +2,8 @@ import path from "path";
 import express from "express";
 import cors from "cors";
 import drive from "./gdrive.mjs";
+import File from "./model/file.mjs";
+import database from "./database.mjs";
 
 const app = express();
 
@@ -15,17 +17,16 @@ app.get("/", (req, res) => {
 app.get("/download", async (req, res) => {
   try {
     const fileId = req.query.file;
-    const title = req.query.title;
-    const size = req.query.size;
 
-    if (!fileId || !title || !size)
-      return res
-        .status(400)
-        .json({ msg: "file id, size and title are needed" });
+    if (!fileId) return res.status(400).json({ msg: "file is needed" });
+
+    const file = await File.findById(fileId);
+
+    if (!file) return res.status(404).json({ msg: "not found" });
 
     res.set({
-      "Content-Length": parseInt(size),
-      "Content-Disposition": `attachment; filename=${title}`,
+      "Content-Length": file.size,
+      "Content-Disposition": `attachment; filename=${file.title}`,
     });
 
     const resp = await drive.files.get(
@@ -38,7 +39,7 @@ app.get("/download", async (req, res) => {
 
     resp.data.pipe(res);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "something went wrong" });
   }
 });
 
