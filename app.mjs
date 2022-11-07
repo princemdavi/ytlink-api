@@ -25,7 +25,7 @@ app.get("/download", async (req, res) => {
     if (!file) return res.status(404).json({ msg: "not found" });
 
     res.set({
-      "Content-Length": file.size,
+      "Content-Length": file.file_size,
       "Content-Disposition": `attachment; filename=${file.title}`,
     });
 
