@@ -28,7 +28,7 @@ app.get("/download", async (req, res) => {
 
     res.set({
       "Content-Length": file.file_size,
-      "Content-Disposition": `attachment; filename=ydloder-${title}.${file.ext}`,
+      "Content-Disposition": `attachment; filename=ydloder.tk - ${title}.${file.ext}`,
     });
 
     const resp = await drive.files.get(
