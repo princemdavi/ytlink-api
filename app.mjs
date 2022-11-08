@@ -24,9 +24,11 @@ app.get("/download", async (req, res) => {
 
     if (!file) return res.status(404).json({ msg: "not found" });
 
+    const title = file.title.replace(/[&\/\\#, +()$~%.'":*?<>{}]/g, " ");
+
     res.set({
       "Content-Length": file.file_size,
-      "Content-Disposition": `attachment; filename=${file.title}.${file.ext}`,
+      "Content-Disposition": `attachment; filename=ydloder-${title}.${file.ext}`,
     });
 
     const resp = await drive.files.get(
