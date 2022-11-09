@@ -26,7 +26,7 @@ app.get("/download", async (req, res) => {
 
     const title = file.title
       .replace(/[-&\/\\#, +()$~%.'":*?<>{}]/g, " ")
-      .replace(" ", "_");
+      .trim();
 
     res.set({
       "Content-Length": file.file_size,
