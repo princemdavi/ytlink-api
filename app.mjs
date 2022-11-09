@@ -24,7 +24,9 @@ app.get("/download", async (req, res) => {
 
     if (!file) return res.status(404).json({ msg: "not found" });
 
-    const title = file.title.replace(/[&\/\\#, +()$~%.'":*?<>{}]/g, " ");
+    const title = file.title
+      .replace(/[-&\/\\#, +()$~%.'":*?<>{}]/g, " ")
+      .replace(" ", "_");
 
     res.set({
       "Content-Length": file.file_size,
