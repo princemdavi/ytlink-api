@@ -8,6 +8,7 @@ const fileSchema = new Schema({
   title: String,
   itag: String,
   file_size: Number,
+  file_type: String,
   ext: String,
 });
 

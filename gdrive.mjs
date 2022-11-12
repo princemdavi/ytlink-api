@@ -15,4 +15,28 @@ const auth = new google.auth.GoogleAuth({
 
 const drive = google.drive({ version: "v3", auth });
 
+export async function uploadFile({ stream, mimeType, name }) {
+  try {
+    let fileMetadata = {
+      name,
+      parents: ["1TCimBq8GinCDyigH1_2oEouf1CkHIxnA"],
+    };
+
+    let media = {
+      mimeType,
+      body: stream,
+    };
+
+    const result = await drive.files.create({
+      resource: fileMetadata,
+      media: media,
+      supportsAllDrives: true,
+      fields: "id",
+    });
+    return result.data.id;
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
 export default drive;
