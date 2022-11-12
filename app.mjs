@@ -63,7 +63,7 @@ app.get("/download/audio/:videoId", async (req, res) => {
     const file = await File.findOne({ video_id: videoId, file_type: "audio" });
 
     if (file) {
-      res.status(200).send(`${server}/file?=${file.file_id}`);
+      res.status(200).send(`${server}/file?file=${file.file_id}`);
       return;
     }
 
@@ -90,7 +90,7 @@ app.get("/download/audio/:videoId", async (req, res) => {
       file_type: "audio",
     });
 
-    res.status(200).send(`${server}/file?=${newFile._id}`);
+    res.status(200).send(`${server}/file?file=${newFile._id}`);
   } catch (error) {
     res.status(500).json({ msg: "something went wrong" });
   }
@@ -103,7 +103,7 @@ app.get("/download/video/:videoId/:itag", async (req, res) => {
     const file = await File.findOne({ video_id: videoId, itag });
 
     if (file) {
-      res.status(200).send(`${server}/file?=${file.file_id}`);
+      res.status(200).send(`${server}/file?file=${file.file_id}`);
       return;
     }
 
@@ -131,7 +131,7 @@ app.get("/download/video/:videoId/:itag", async (req, res) => {
       file_type: "video",
     });
 
-    res.status(200).send(`${server}/file?=${newFile._id}`);
+    res.status(200).send(`${server}/file?file=${newFile._id}`);
   } catch (error) {
     console.log(error.message);
     res.status(500).send("something went wrong");
