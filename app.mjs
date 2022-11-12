@@ -49,13 +49,13 @@ app.get("/download", async (req, res) => {
   }
 });
 
-app.get("/audio/:videoId", async (req, res) => {
-  const videoId = req.params.videoId;
-  const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-  const yt = new YoutubeVideo(videoUrl);
-  const audio_stream = await yt.download_audio();
-  audio_stream.pipe(res);
-});
+// app.get("/audio/:videoId", async (req, res) => {
+//   const videoId = req.params.videoId;
+//   const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+//   const yt = new YoutubeVideo(videoUrl);
+//   const audio_stream = await yt.download_audio();
+//   audio_stream.pipe(res);
+// });
 
 app.get("/download/audio/:videoId", async (req, res) => {
   try {
