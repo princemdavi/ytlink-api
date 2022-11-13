@@ -20,14 +20,14 @@ app.get("/download", async (req, res) => {
   try {
     const fileId = req.query.file;
 
-    const range = req.headers.range;
-    if (!range) return res.status(400).send("error");
-
     if (!fileId) return res.status(400).json({ msg: "file is needed" });
 
     const file = await File.findById(fileId);
 
     if (!file) return res.status(404).json({ msg: "not found" });
+
+    const range = req.headers.range;
+    if (!range) return res.status(400).send("error");
 
     const title = file.title
       .replace(/[-&\/\\#, +()$~%.'":*?<>{}]/g, " ")
