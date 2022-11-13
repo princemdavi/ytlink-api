@@ -8,14 +8,31 @@ class YoutubeVideo {
     this.url = url;
   }
 
-  async download_audio(options = {}) {
-    const info = await ytdl.getInfo(this.url, options);
-
-    let audioStream = ytdl.downloadFromInfo(info, {
-      ...options,
+  download_audio() {
+    const audioStream = ytdl(this.url, {
       quality: "highestaudio",
     });
-    return { audioStream, title: info.videoDetails.title };
+
+    return { audioStream };
+  }
+
+  stream(options = {}) {
+    const stream = ytdl(this.url, {
+      ...options,
+    });
+
+    return stream;
+  }
+
+  getSize(options = {}) {
+    return new Promise((resolve) => {
+      const audioStream = ytdl(this.url, {
+        ...options,
+      });
+      audioStream.on("info", (info, format) => {
+        resolve(parseInt(format.contentLength));
+      });
+    });
   }
 
   async download_video(itag) {
