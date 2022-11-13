@@ -98,7 +98,7 @@ app.get("/video/:videoId", async (req, res) => {
   };
 
   const stream = yt.stream({
-    quality: "lowestvideo",
+    quality: "highestvideo",
     range: { start, end },
   });
 
