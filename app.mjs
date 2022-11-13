@@ -58,7 +58,7 @@ app.get("/audio/:videoId", async (req, res) => {
   const yt = new YoutubeVideo(videoUrl);
 
   const audioSize = await yt.getSize({ quality: "highestaudio" });
-  const chunkSize = 10 ** 3;
+  const chunkSize = 10 ** 6;
   const start = Number(range.replace(/\D/g, ""));
   const end = Math.min(start + chunkSize, audioSize - 1);
   const contentLength = end - start + 1;
