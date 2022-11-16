@@ -7,7 +7,7 @@ import {
   streamRoute,
   suggestionRoute,
   videoinfoRoute,
-} from "./routes/index.mjs";
+} from "./routes/index.js";
 
 const app = express();
 
