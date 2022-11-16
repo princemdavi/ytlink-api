@@ -8,31 +8,14 @@ class YoutubeVideo {
     this.url = url;
   }
 
-  download_audio() {
-    const audioStream = ytdl(this.url, {
+  async download_audio() {
+    const info = await ytdl.getInfo(this.url);
+
+    const audioStream = ytdl.downloadFromInfo(info, {
       quality: "highestaudio",
     });
 
-    return { audioStream };
-  }
-
-  stream(options = {}) {
-    const stream = ytdl(this.url, {
-      ...options,
-    });
-
-    return stream;
-  }
-
-  getSize(options = {}) {
-    return new Promise((resolve) => {
-      const audioStream = ytdl(this.url, {
-        ...options,
-      });
-      audioStream.on("info", (info, format) => {
-        resolve(parseInt(format.contentLength));
-      });
-    });
+    return { audioStream, title: info.videoDetails.title };
   }
 
   async download_video(itag) {
@@ -94,6 +77,25 @@ class YoutubeVideo {
     videoStream.pipe(ffmpegProcess.stdio[4]);
     ffmpegProcess.stdio[5].pipe(result);
     return { videoStream: result, title: info.videoDetails.title };
+  }
+
+  stream(options = {}) {
+    const stream = ytdl(this.url, {
+      ...options,
+    });
+
+    return stream;
+  }
+
+  getSize(options = {}) {
+    return new Promise((resolve) => {
+      const audioStream = ytdl(this.url, {
+        ...options,
+      });
+      audioStream.on("info", (info, format) => {
+        resolve(parseInt(format.contentLength));
+      });
+    });
   }
 }
 
