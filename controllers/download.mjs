@@ -48,7 +48,7 @@ export const audio = async (req, res) => {
 export const video = async (req, res) => {
   try {
     const { videoId, itag } = req.params;
-
+    //! we check if the file requested has already been downloadeda and if so, we just return it
     const file = await File.findOne({ video_id: videoId, itag });
 
     if (file) {
