@@ -2,10 +2,61 @@ import ffmpegPath from "ffmpeg-static";
 import cp from "child_process";
 import stream from "stream";
 import ytdl from "ytdl-core";
+import formatBytes from "./utils/formatBytes.mjs";
+import formatNumber from "./utils/formatNumber.mjs";
+import formatTime from "./utils/formatTime.mjs";
 
 class YoutubeVideo {
   constructor(url) {
     this.url = url;
+  }
+
+  async get_video_info() {
+    const info = await ytdl.getInfo(this.url);
+    const videoFormats = info.formats.filter(
+      (fomrat) =>
+        fomrat.container === "mp4" &&
+        fomrat.mimeType.replaceAll('"', "").includes("avc1") &&
+        !fomrat.hasAudio
+    );
+
+    const audioFormat = info.formats.filter(
+      (fomrat) => fomrat.container === "mp4" && !fomrat.hasVideo
+    )[0];
+
+    const formattedVideoFormats = videoFormats.map((vformat) => ({
+      itag: vformat.itag,
+      size: vformat.contentLength
+        ? formatBytes(
+            parseInt(vformat.contentLength) +
+              parseInt(audioFormat.contentLength)
+          )
+        : "MB",
+      res: vformat.qualityLabel,
+    }));
+
+    const formattedAudioFormat = {
+      itag: audioFormat.itag,
+      size: formatBytes(audioFormat.contentLength),
+    };
+
+    const videoDetails = {
+      title: info.videoDetails.title,
+      author: info.videoDetails.author.name,
+      publish_date: info.videoDetails.publishDate,
+      duration: formatTime(info.videoDetails.lengthSeconds),
+      views: formatNumber(info.videoDetails.viewCount),
+      thumbnail: info.videoDetails.thumbnails.at(-1).url.split("?")[0],
+      video_id: info.videoDetails.videoId,
+    };
+
+    return {
+      formats: {
+        video: formattedVideoFormats,
+        audio: formattedAudioFormat,
+      },
+      videoDetails: videoDetails,
+    };
   }
 
   async download_audio() {
