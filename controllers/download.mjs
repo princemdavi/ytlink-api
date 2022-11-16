@@ -49,9 +49,6 @@ export const video = async (req, res) => {
   try {
     const { videoId, itag } = req.params;
 
-    if (!videoId || !itag)
-      return res.status(403).json({ msg: "please specify videoId and itag" });
-
     const file = await File.findOne({ video_id: videoId, itag });
 
     if (file) {
