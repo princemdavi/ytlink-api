@@ -11,7 +11,7 @@ export const audio = async (req, res) => {
     const file = await File.findOne({ video_id: videoId, file_type: "audio" });
 
     if (file) {
-      res.status(200).send(`${server}/download?file=${file.file_id}`);
+      res.status(200).send(`${server}/download?file=${file._id}`);
       return;
     }
 
@@ -52,7 +52,7 @@ export const video = async (req, res) => {
     const file = await File.findOne({ video_id: videoId, itag });
 
     if (file) {
-      res.status(200).send(`${server}/download?file=${file.file_id}`);
+      res.status(200).send(`${server}/download?file=${file._id}`);
       return;
     }
 
