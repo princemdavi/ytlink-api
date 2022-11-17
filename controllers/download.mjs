@@ -97,11 +97,9 @@ export const file = async (req, res) => {
 
     if (!file) return res.status(404).json({ msg: "not found" });
 
-    const title = file.title
-      .replace(/[-&\/\\#, +()$~%.'":*?<>{}]/g, " ")
-      .trim();
-
-    const contentType = file.file_type == "audio" ? "audio/mp3" : "video/mp4";
+    const ext = file.file_type == "audio" ? ".mp3" : ".mp4";
+    const title =
+      file.title.replace(/[-&\/\\#, +()$~%.'":*?<>{}]/g, " ").trim() + ext;
 
     const resp = await drive.files.get(
       {
@@ -112,7 +110,6 @@ export const file = async (req, res) => {
     );
 
     res.set({
-      "Content-Type": contentType,
       "Content-Length": file.file_size,
       "Content-Disposition": `attachment; filename=${title}`,
     });
