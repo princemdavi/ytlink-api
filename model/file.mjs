@@ -7,9 +7,8 @@ const fileSchema = new Schema({
   file_id: String,
   title: String,
   itag: String,
-  file_size: Number,
-  file_type: String,
-  ext: String,
+  size: Number,
+  mime_type: String,
 });
 
 export default mongoose.model("File", fileSchema);
