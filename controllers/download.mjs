@@ -101,7 +101,7 @@ export const file = async (req, res) => {
       .replace(/[-&\/\\#, +()$~%.'":*?<>{}]/g, " ")
       .trim();
 
-    const ext = file.file_type == "audio" ? ".mp3" : ".mp4";
+    const contentType = file.file_type == "audio" ? "audio/mp3" : "video/mp4";
 
     const resp = await drive.files.get(
       {
@@ -112,8 +112,9 @@ export const file = async (req, res) => {
     );
 
     res.set({
+      "Content-Type": contentType,
       "Content-Length": file.file_size,
-      "Content-Disposition": `attachment; filename=${title}${ext}`,
+      "Content-Disposition": `attachment; filename=${title}`,
     });
 
     resp.data.pipe(res);
