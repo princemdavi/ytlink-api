@@ -1,6 +1,6 @@
 import YoutubeVideo from "../youtubevideo.mjs";
 
-export const audio = async (req, res) => {
+export const streamAudio = async (req, res) => {
   try {
     const range = req.headers.range;
     if (!range) return res.status(400).send("error");
@@ -22,7 +22,7 @@ export const audio = async (req, res) => {
       "Content-Type": "audio/mp3",
     };
 
-    const stream = yt.stream({
+    const stream = yt.stream_audio({
       quality: "highestaudio",
       range: { start, end },
     });
@@ -34,7 +34,7 @@ export const audio = async (req, res) => {
   }
 };
 
-export const video = async (req, res) => {
+export const streamVideo = async (req, res) => {
   try {
     const range = req.headers.range;
     if (!range) return res.status(400).send("error");
@@ -43,7 +43,10 @@ export const video = async (req, res) => {
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
     const yt = new YoutubeVideo(videoUrl);
 
-    const videoSize = await yt.getSize({ quality: "highestvideo" });
+    const { stream, size: videoSize } = await yt.stream_video({
+      range: { start, end },
+    });
+
     const chunkSize = 10 ** 6;
     const start = Number(range.replace(/\D/g, ""));
     const end = Math.min(start + chunkSize, videoSize - 1);
@@ -55,12 +58,6 @@ export const video = async (req, res) => {
       "Content-Length": contentLength,
       "Content-Type": "video/mp4",
     };
-
-    const stream = yt.stream({
-      quality: "highestvideo",
-      range: { start, end },
-    });
-
     res.writeHead(206, headers);
     stream.pipe(res);
   } catch (error) {
