@@ -7,7 +7,7 @@ const server = "https://pytvdd.herokuapp.com";
 
 export const downloadFile = async (req, res) => {
   try {
-    const { videoId, itag } = req.params;
+    const { videoId, itag, format } = req.params;
     const file = await File.findOne({ video_id: videoId, itag });
 
     if (file) {
@@ -16,10 +16,10 @@ export const downloadFile = async (req, res) => {
     }
 
     const yt = new YoutubeVideo(`https://www.youtube.com/watch?v=${videoId}`);
-    const { stream, title, type } = await yt.download(itag);
+    const { stream, title } = await yt.download(itag, format);
 
     //! if the file requested for download is a audio file
-    if (type == "audio") {
+    if (format == "mp3") {
       let file_size = 0;
 
       stream.on("data", (chunk) => {
@@ -38,6 +38,7 @@ export const downloadFile = async (req, res) => {
         file_id,
         size: file_size,
         mime_type: "audio/mp3",
+        ext: format,
       });
 
       return res.status(200).send(`${server}/download?file=${newFile._id}`);
@@ -52,8 +53,8 @@ export const downloadFile = async (req, res) => {
 
     const file_id = await uploadFile({
       stream: stream,
-      mimeType: "video/mp4",
-      name: uuidv4() + ".mp4",
+      mimeType: `video/${format}`,
+      name: uuidv4() + "." + format,
     });
 
     const newFile = await File.create({
@@ -62,7 +63,8 @@ export const downloadFile = async (req, res) => {
       file_id,
       itag,
       size: file_size,
-      mime_type: "video/mp4",
+      mime_type: `video/${format}`,
+      ext: format,
     });
 
     res.status(200).send(`${server}/download?file=${newFile._id}`);
@@ -82,9 +84,9 @@ export const getDownloadedFile = async (req, res) => {
 
     if (!file) return res.status(404).json({ msg: "not found" });
 
-    const ext = file.mime_type == "audio/mp3" ? ".mp3" : ".mp4";
-    const title =
-      file.title.replace(/[-&\/\\#, +()$~%.'":*?<>{}]/g, " ").trim() + ext;
+    const title = file.title
+      .replace(/[-&\/\\#, +()$~%.'":*?<>{}]/g, " ")
+      .trim();
 
     const resp = await drive.files.get(
       {

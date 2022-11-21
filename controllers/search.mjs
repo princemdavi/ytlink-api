@@ -1,4 +1,4 @@
-import ytsr from "ytsr";
+import yts from "yt-search";
 
 export const searchVideo = async (req, res) => {
   try {
@@ -6,11 +6,9 @@ export const searchVideo = async (req, res) => {
     if (!term)
       return res.status(400).json({ details: "search term is needed" });
 
-    const result = await ytsr.getFilters(term);
-    const filters = result.get("Type").get("Video");
-    const searchResults = await ytsr(filters.url, { pages: 1 });
+    const result = await yts(term);
 
-    res.status(200).json(searchResults.items);
+    res.status(200).json(result.videos);
   } catch (error) {
     res.status(500).json({ msg: "something went wrong" });
   }

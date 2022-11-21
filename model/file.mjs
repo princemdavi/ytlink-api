@@ -9,6 +9,7 @@ const fileSchema = new Schema({
   itag: String,
   size: Number,
   mime_type: String,
+  ext: String,
 });
 
 export default mongoose.model("File", fileSchema);

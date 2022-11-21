@@ -4,6 +4,6 @@ import { downloadFile, getDownloadedFile } from "../controllers/download.mjs";
 const router = express.Router();
 
 router.get("/", getDownloadedFile);
-router.get("/:videoId/:itag", downloadFile);
+router.get("/:videoId/:itag/:format", downloadFile);
 
 export default router;

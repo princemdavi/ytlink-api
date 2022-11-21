@@ -43,9 +43,7 @@ export const streamVideo = async (req, res) => {
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
     const yt = new YoutubeVideo(videoUrl);
 
-    const { stream, size: videoSize } = await yt.stream_video({
-      range: { start, end },
-    });
+    const videoSize = await yt.getStreamVideoSIze();
 
     const chunkSize = 10 ** 6;
     const start = Number(range.replace(/\D/g, ""));
@@ -58,6 +56,11 @@ export const streamVideo = async (req, res) => {
       "Content-Length": contentLength,
       "Content-Type": "video/mp4",
     };
+    console.log("size", videoSize);
+    const stream = await yt.stream_video({
+      range: { start, end },
+    });
+
     res.writeHead(206, headers);
     stream.pipe(res);
   } catch (error) {

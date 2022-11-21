@@ -11,27 +11,30 @@ class YoutubeVideo {
     this.url = url;
   }
 
-  async get_video_info() {
+  async get_video_info(format) {
     const info = await ytdl.getInfo(this.url);
+    const codec = (videoFormat) =>
+      format == "mp4"
+        ? videoFormat.mimeType.replaceAll('"', "").includes("avc1")
+        : true;
     const videoFormats = info.formats.filter(
-      (fomrat) =>
-        fomrat.container === "mp4" &&
-        fomrat.mimeType.replaceAll('"', "").includes("avc1") &&
-        !fomrat.hasAudio
+      (videoFormat) =>
+        videoFormat.container === format &&
+        codec(videoFormat) &&
+        !videoFormat.hasAudio &&
+        videoFormat.contentLength &&
+        videoFormat.fps == 30
     );
 
     const audioFormat = info.formats.filter(
-      (fomrat) => fomrat.container === "mp4" && !fomrat.hasVideo
+      (audioFomrat) => audioFomrat.container === format && !audioFomrat.hasVideo
     )[0];
 
     const formattedVideoFormats = videoFormats.map((vformat) => ({
       itag: vformat.itag,
-      size: vformat.contentLength
-        ? formatBytes(
-            parseInt(vformat.contentLength) +
-              parseInt(audioFormat.contentLength)
-          )
-        : "MB",
+      size: formatBytes(
+        parseInt(vformat.contentLength) + parseInt(audioFormat.contentLength)
+      ),
       res: vformat.qualityLabel,
     }));
 
@@ -59,13 +62,11 @@ class YoutubeVideo {
     };
   }
 
-  async download(itag) {
+  async download(itag, format) {
     const info = await ytdl.getInfo(this.url);
-    const isVideo = info.formats.filter((format) => format.itag == itag)[0]
-      .qualityLabel;
 
     //! download audio file
-    if (!isVideo) {
+    if (format == "mp3") {
       const audioStream = ytdl.downloadFromInfo(info, {
         quality: itag,
       });
@@ -73,7 +74,6 @@ class YoutubeVideo {
       return {
         stream: audioStream,
         title: info.videoDetails.title,
-        type: "audio",
       };
     }
 
@@ -82,8 +82,12 @@ class YoutubeVideo {
       highWaterMark: 1024 * 512,
     });
 
+    const audioFormat = info.formats.filter(
+      (audioFomrat) => audioFomrat.container === format && !audioFomrat.hasVideo
+    )[0];
+
     let audioStream = ytdl.downloadFromInfo(info, {
-      quality: "highestaudio",
+      quality: audioFormat.itag,
     });
 
     let videoStream = ytdl.downloadFromInfo(info, {
@@ -133,7 +137,7 @@ class YoutubeVideo {
     audioStream.pipe(ffmpegProcess.stdio[3]);
     videoStream.pipe(ffmpegProcess.stdio[4]);
     ffmpegProcess.stdio[5].pipe(result);
-    return { stream: result, title: info.videoDetails.title, type: "video" };
+    return { stream: result, title: info.videoDetails.title };
   }
 
   getSize(options = {}) {
@@ -145,6 +149,23 @@ class YoutubeVideo {
         resolve(parseInt(format.contentLength));
       });
     });
+  }
+
+  async getStreamVideoSIze() {
+    const info = await ytdl.getInfo(this.url);
+    const formatWithOnlyVideo = info.formats.filter(
+      (format) =>
+        format.container == "mp4" && !format.hasAudio && format.hasVideo
+    );
+    const audioFormat = info.formats.filter(
+      (format) =>
+        format.container == "mp4" && format.hasAudio && !format.hasVideo
+    )[0];
+
+    const mediumVideo = formatWithOnlyVideo.find(
+      (format) => format.qualityLabel == "360p"
+    );
+    return mediumVideo.contentLength + audioFormat.contentLength;
   }
 
   stream_audio(options = {}) {
@@ -171,7 +192,7 @@ class YoutubeVideo {
       quality: mediumVideo.itag,
     });
 
-    return { stream, size: mediumVideo.contentLength };
+    return stream;
   }
 }
 
