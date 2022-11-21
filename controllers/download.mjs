@@ -18,7 +18,7 @@ export const downloadFile = async (req, res) => {
     const yt = new YoutubeVideo(`https://www.youtube.com/watch?v=${videoId}`);
     const { stream, title } = await yt.download(itag, format);
 
-    const cleaned_title = title.replace(/[^a-zA-Z0-9 ]/g, "");
+    const cleaned_title = title.replace(/[^a-zA-Z0-9 ]/g, "").trim();
 
     //! if the file requested for download is a audio file
     if (format == "mp3") {
