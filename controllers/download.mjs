@@ -84,9 +84,9 @@ export const getDownloadedFile = async (req, res) => {
 
     if (!file) return res.status(404).json({ msg: "not found" });
 
-    const title = file.title
-      .replace(/[-&\/\\#, +()$~%.'":*?<>{}]/g, " ")
-      .trim();
+    const title =
+      file.title.replace(/[-&\/\\#, +()$~%.'":*?<>{}]/g, " ").trim() +
+      `.${file.ext}`;
 
     const resp = await drive.files.get(
       {
@@ -97,7 +97,6 @@ export const getDownloadedFile = async (req, res) => {
     );
 
     res.set({
-      "Content-Type": file.mime_type,
       "Content-Length": file.size,
       "Content-Disposition": `attachment; filename=${title}`,
     });
