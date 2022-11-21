@@ -18,6 +18,8 @@ export const downloadFile = async (req, res) => {
     const yt = new YoutubeVideo(`https://www.youtube.com/watch?v=${videoId}`);
     const { stream, title } = await yt.download(itag, format);
 
+    const cleaned_title = title.replace(/[^a-zA-Z0-9 ]/g, "");
+
     //! if the file requested for download is a audio file
     if (format == "mp3") {
       let file_size = 0;
@@ -33,7 +35,7 @@ export const downloadFile = async (req, res) => {
       });
 
       const newFile = await File.create({
-        title,
+        title: cleaned_title,
         video_id: videoId,
         file_id,
         size: file_size,
@@ -58,7 +60,7 @@ export const downloadFile = async (req, res) => {
     });
 
     const newFile = await File.create({
-      title,
+      title: cleaned_title,
       video_id: videoId,
       file_id,
       itag,
@@ -84,9 +86,7 @@ export const getDownloadedFile = async (req, res) => {
 
     if (!file) return res.status(404).json({ msg: "not found" });
 
-    const title =
-      file.title.replace(/[-&\/\\#, +()$~%.'":*?<>{}]/g, " ").trim() +
-      `.${file.ext}`;
+    const title = `${file.title}.${file.ext}`;
 
     const resp = await drive.files.get(
       {
