@@ -22,8 +22,7 @@ class YoutubeVideo {
         videoFormat.container === format &&
         codec(videoFormat) &&
         !videoFormat.hasAudio &&
-        videoFormat.contentLength &&
-        videoFormat.fps == 30
+        videoFormat.contentLength
     );
 
     const audioFormat = info.formats.filter(
