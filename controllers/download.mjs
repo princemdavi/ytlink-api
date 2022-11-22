@@ -9,7 +9,6 @@ export const downloadFile = async (req, res) => {
   try {
     const { videoId, itag, format } = req.params;
     const file = await File.findOne({ video_id: videoId, itag });
-
     if (file) {
       res.status(200).send(`${server}/download?file=${file._id}`);
       return;
@@ -39,6 +38,7 @@ export const downloadFile = async (req, res) => {
         video_id: videoId,
         file_id,
         size: file_size,
+        itag,
         mime_type: "audio/mp3",
         ext: format,
       });
