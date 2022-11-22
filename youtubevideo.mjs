@@ -53,12 +53,17 @@ class YoutubeVideo {
     };
 
     return {
-      formats: {
-        video: formattedVideoFormats,
-        audio: formattedAudioFormat,
-      },
+      formats: formattedVideoFormats,
       videoDetails: videoDetails,
     };
+  }
+
+  async get_audio_info() {
+    const info = await ytdl.getInfo(this.url);
+    const audioFormat = info.formats.filter(
+      (audioFomrat) => audioFomrat.container === "mp4" && !audioFomrat.hasVideo
+    )[0];
+    return audioFormat;
   }
 
   async download(itag, format) {

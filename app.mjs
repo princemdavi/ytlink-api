@@ -6,7 +6,7 @@ import {
   searchRoute,
   streamRoute,
   suggestionRoute,
-  videoinfoRoute,
+  infoRoute,
 } from "./routes/index.mjs";
 
 const app = express();
@@ -19,7 +19,7 @@ app.use("/stream", streamRoute);
 app.use("/download", downloadRoute);
 app.use("/suggestion", suggestionRoute);
 app.use("/search", searchRoute);
-app.use("/videoinfo", videoinfoRoute);
+app.use("/info", infoRoute);
 
 app.get("/", (req, res) => {
   res.send("hello bro");

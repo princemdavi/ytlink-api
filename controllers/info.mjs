@@ -11,3 +11,15 @@ export const videoInfo = async (req, res) => {
     res.status(500).send(error);
   }
 };
+
+export const audioInfo = async (req, res) => {
+  try {
+    const videoId = req.params.videoId;
+    const yt = new YoutubeVideo(videoId);
+    const audio = await yt.get_audio_info();
+    return res.status(200).json(audio);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ msg: "something went wrong" });
+  }
+};
