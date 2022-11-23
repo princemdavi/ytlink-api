@@ -1,3 +1,4 @@
+import yts from "yt-search";
 import YoutubeVideo from "../youtubevideo.mjs";
 
 export const videoInfo = async (req, res) => {
@@ -20,6 +21,16 @@ export const audioInfo = async (req, res) => {
     return res.status(200).json(audio);
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ msg: "something went wrong" });
+  }
+};
+
+export const playlistInfo = async (req, res) => {
+  try {
+    const playlistId = req.params.playlistId;
+    const list = await yts({ listId: playlistId });
+    return res.status(200).json(list);
+  } catch (error) {
     res.status(500).json({ msg: "something went wrong" });
   }
 };
