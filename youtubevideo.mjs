@@ -29,13 +29,20 @@ class YoutubeVideo {
       (audioFomrat) => audioFomrat.container === format && !audioFomrat.hasVideo
     )[0];
 
-    const formattedVideoFormats = videoFormats.map((vformat) => ({
-      itag: vformat.itag,
-      size: formatBytes(
-        parseInt(vformat.contentLength) + parseInt(audioFormat.contentLength)
-      ),
-      res: vformat.qualityLabel,
-    }));
+    let formattedVideoFormats = [];
+
+    videoFormats.reverse().forEach((vformat) => {
+      const resolutions = formattedVideoFormats.map((format) => format.res);
+      if (resolutions.includes(vformat.qualityLabel.split("p")[0] + "p"))
+        return;
+      formattedVideoFormats.push({
+        itag: vformat.itag,
+        size: formatBytes(
+          parseInt(vformat.contentLength) + parseInt(audioFormat.contentLength)
+        ),
+        res: vformat.qualityLabel.split("p")[0] + "p",
+      });
+    });
 
     const formattedAudioFormat = {
       itag: audioFormat.itag,
@@ -53,7 +60,7 @@ class YoutubeVideo {
     };
 
     return {
-      formats: formattedVideoFormats,
+      formats: formattedVideoFormats.reverse(),
       videoDetails: videoDetails,
     };
   }
