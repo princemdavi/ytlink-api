@@ -44,11 +44,6 @@ class YoutubeVideo {
       });
     });
 
-    const formattedAudioFormat = {
-      itag: audioFormat.itag,
-      size: formatBytes(audioFormat.contentLength),
-    };
-
     const videoDetails = {
       title: info.videoDetails.title,
       author: info.videoDetails.author.name,
