@@ -79,6 +79,7 @@ export const downloadFile = async (req, res) => {
 export const getDownloadedFile = async (req, res) => {
   try {
     const fileId = req.query.file;
+    const range = req.headers.range;
 
     if (!fileId) return res.status(400).json({ msg: "file is needed" });
 
@@ -87,21 +88,65 @@ export const getDownloadedFile = async (req, res) => {
     if (!file) return res.status(404).json({ msg: "not found" });
 
     const title = `${file.title}.${file.ext}`;
+    const size = file.size;
 
-    const resp = await drive.files.get(
-      {
-        fileId: file.file_id,
-        alt: "media",
-      },
-      { responseType: "stream" }
-    );
+    if (range) {
+      let [start, end] = range.replace(/bytes=/, "").split("-");
+      start = parseInt(start, 10);
+      end = end ? parseInt(end, 10) : size - 1;
 
-    res.set({
-      "Content-Length": file.size,
-      "Content-Disposition": `attachment; filename=${title}`,
-    });
+      if (!isNaN(start) && isNaN(end)) {
+        start = start;
+        end = size - 1;
+      }
+      if (isNaN(start) && !isNaN(end)) {
+        start = size - end;
+        end = size - 1;
+      }
 
-    resp.data.pipe(res);
+      // Handle unavailable range request
+      if (start >= size || end >= size) {
+        // Return the 416 Range Not Satisfiable.
+        res.writeHead(416, {
+          "Content-Range": `bytes */${size}`,
+        });
+        return res.end();
+      }
+
+      /** Sending Partial Content With HTTP Code 206 */
+      res.writeHead(206, {
+        "Content-Range": `bytes ${start}-${end}/${size}`,
+        "Accept-Ranges": "bytes",
+        "Content-Length": end - start + 1,
+        "Content-Type": file.mime_type,
+      });
+
+      const resp = await drive.files.get(
+        {
+          fileId: file.file_id,
+          alt: "media",
+        },
+        { responseType: "stream", headers: { "Range": `bytes=${start}-${end}` } }
+      );
+
+      resp.data.pipe(res);
+    } else {
+      const resp = await drive.files.get(
+        {
+          fileId: file.file_id,
+          alt: "media",
+        },
+        { responseType: "stream" }
+      );
+
+      res.set({
+        "Content-Length": file.size,
+        "Content-Type": file.mime_type,
+        "Content-Disposition": `attachment; filename=${title}`,
+      });
+
+      resp.data.pipe(res);
+    }
   } catch (error) {
     console.log(error.message);
     res.status(500).send("something went wrong");
