@@ -3,7 +3,7 @@ import YoutubeVideo from "../youtubevideo.mjs";
 import File from "../model/file.mjs";
 import drive, { uploadFile } from "../gdrive.mjs";
 
-const server = "https://pytvdd.herokuapp.com";
+const server = "https://ytlinkapi.herokuapp.com";
 
 export const downloadFile = async (req, res) => {
   try {
@@ -126,7 +126,10 @@ export const getDownloadedFile = async (req, res) => {
           fileId: file.file_id,
           alt: "media",
         },
-        { responseType: "stream", headers: { "Range": `bytes=${start}-${end}` } }
+        {
+          responseType: "stream",
+          headers: { "Range": `bytes=${start}-${end}` },
+        }
       );
 
       resp.data.pipe(res);
@@ -142,6 +145,7 @@ export const getDownloadedFile = async (req, res) => {
       res.set({
         "Content-Length": file.size,
         "Content-Type": file.mime_type,
+        "Accept-Ranges": "bytes",
         "Content-Disposition": `attachment; filename=${title}`,
       });
 
