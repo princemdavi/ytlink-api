@@ -159,19 +159,16 @@ class YoutubeVideo {
 
   async getStreamVideoSIze() {
     const info = await ytdl.getInfo(this.url);
-    const formatWithOnlyVideo = info.formats.filter(
+    const formatWithBothVideoAndAudio = info.formats.filter(
       (format) =>
-        format.container == "mp4" && !format.hasAudio && format.hasVideo
+        format.container == "mp4" && format.hasAudio && format.hasVideo
     );
-    const audioFormat = info.formats.filter(
-      (format) =>
-        format.container == "mp4" && format.hasAudio && !format.hasVideo
-    )[0];
 
-    const mediumVideo = formatWithOnlyVideo.find(
+    const mediumVideo = formatWithBothVideoAndAudio.find(
       (format) => format.qualityLabel == "360p"
     );
-    return mediumVideo.contentLength + audioFormat.contentLength;
+    console.log(formatWithBothVideoAndAudio);
+    return mediumVideo.contentLength;
   }
 
   stream_audio(options = {}) {

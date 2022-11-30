@@ -1,3 +1,4 @@
+import ytdl from "ytdl-core";
 import YoutubeVideo from "../youtubevideo.mjs";
 
 export const streamAudio = async (req, res) => {
@@ -36,33 +37,20 @@ export const streamAudio = async (req, res) => {
 
 export const streamVideo = async (req, res) => {
   try {
-    const range = req.headers.range;
-    if (!range) return res.status(400).send("error");
-
     const videoId = req.params.videoId;
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-    const yt = new YoutubeVideo(videoUrl);
 
-    const videoSize = await yt.getStreamVideoSIze();
+    const info = await ytdl.getInfo(videoUrl);
+    const formatWithBothVideoAndAudio = info.formats.filter(
+      (format) =>
+        format.container == "mp4" && format.hasAudio && format.hasVideo
+    );
 
-    const chunkSize = 10 ** 6;
-    const start = Number(range.replace(/\D/g, ""));
-    const end = Math.min(start + chunkSize, videoSize - 1);
-    const contentLength = end - start + 1;
+    const mediumVideo = formatWithBothVideoAndAudio.find(
+      (format) => format.qualityLabel == "360p"
+    );
 
-    const headers = {
-      "Content-Range": `bytes ${start}-${end}/${videoSize}`,
-      "Accept-Ranges": "bytes",
-      "Content-Length": contentLength,
-      "Content-Type": "video/mp4",
-    };
-    console.log("size", videoSize);
-    const stream = await yt.stream_video({
-      range: { start, end },
-    });
-
-    res.writeHead(206, headers);
-    stream.pipe(res);
+    res.status(200).send(mediumVideo.url);
   } catch (error) {
     res.status(500).send("something went wrong");
   }
