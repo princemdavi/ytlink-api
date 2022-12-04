@@ -11,7 +11,11 @@ import {
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["https://ytlink.tk", "https://www.ytlink.tk"],
+  })
+);
 app.use(express.json());
 
 // middlewares
