@@ -9,6 +9,7 @@ export const videoInfo = async (req, res) => {
     const videoInfo = await yt.get_video_info(format);
     res.status(200).json(videoInfo);
   } catch (error) {
+    console.log(error);
     res.status(500).send(error);
   }
 };
@@ -20,7 +21,7 @@ export const audioInfo = async (req, res) => {
     const audio = await yt.get_audio_info();
     return res.status(200).json(audio);
   } catch (error) {
-    console.log(error.message);
+    console.log(error);
     res.status(500).json({ msg: "something went wrong" });
   }
 };

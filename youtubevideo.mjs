@@ -65,7 +65,7 @@ class YoutubeVideo {
     const audioFormat = info.formats.filter(
       (audioFomrat) => audioFomrat.container === "mp4" && !audioFomrat.hasVideo
     )[0];
-    return audioFormat;
+    return { format: audioFormat, details: info.videoDetails };
   }
 
   async download(itag, format) {
