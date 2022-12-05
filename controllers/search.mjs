@@ -9,9 +9,19 @@ export const searchVideo = async (req, res) => {
     if (!term)
       return res.status(400).json({ details: "search term is needed" });
 
-    const result = await yts(term);
+    const { data } = await axios.get(`${backend_2}/search/videos?term=${term}`);
 
-    res.status(200).json(result.videos);
+    const modifield_results = data.map((result) => ({
+      videoId: result.id,
+      title: result.title,
+      author: result.channel,
+      thumbnail: result.thumbnails.at(-1).url,
+      ago: result.publishedTime,
+      timestamp: result.duration,
+      views: result.viewCount.short,
+    }));
+
+    res.status(200).json(modifield_results);
   } catch (error) {
     res.status(500).json({ msg: "something went wrong" });
   }
