@@ -26,7 +26,7 @@ class YoutubeVideo {
     );
 
     const audioFormat = info.formats.filter(
-      (audioFomrat) => audioFomrat.container === "mp4" && !audioFomrat.hasVideo
+      (audioFomrat) => audioFomrat.container === format && !audioFomrat.hasVideo
     )[0];
 
     let formattedVideoFormats = [];
@@ -89,7 +89,7 @@ class YoutubeVideo {
     });
 
     const audioFormat = info.formats.filter(
-      (audioFomrat) => audioFomrat.container === "mp4" && !audioFomrat.hasVideo
+      (audioFomrat) => audioFomrat.container === format && !audioFomrat.hasVideo
     )[0];
 
     let audioStream = ytdl.downloadFromInfo(info, {
