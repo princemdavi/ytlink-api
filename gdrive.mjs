@@ -19,7 +19,7 @@ export async function uploadFile({ stream, mimeType, name }) {
   try {
     let fileMetadata = {
       name,
-      parents: ["1g5rGDv7akRSX3GFaoWOdrFu_wlEBysWz"],
+      parents: ["1o8jn6azmDVZq3vJ-J8RuGlKBQqUBOdmA"],
     };
 
     let media = {
