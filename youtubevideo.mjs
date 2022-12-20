@@ -11,37 +11,66 @@ class YoutubeVideo {
     this.url = url;
   }
 
-  async get_video_info(format) {
+  async get_video_info() {
     const info = await ytdl.getInfo(this.url);
-    const codec = (videoFormat) =>
-      format == "mp4"
-        ? videoFormat.mimeType.replaceAll('"', "").includes("avc1")
-        : true;
-    const videoFormats = info.formats.filter(
+
+    const mp4VideoFormats = info.formats.filter(
       (videoFormat) =>
-        videoFormat.container === format &&
-        codec(videoFormat) &&
+        videoFormat.container === "mp4" &&
+        videoFormat.mimeType.replaceAll('"', "").includes("avc1") &&
         !videoFormat.hasAudio &&
         videoFormat.contentLength
     );
 
-    const audioFormat = info.formats
+    const webmVideoFormats = info.formats.filter(
+      (videoFormat) =>
+        videoFormat.container === "webm" &&
+        !videoFormat.hasAudio &&
+        videoFormat.contentLength
+    );
+
+    const mp4AudioFormat = info.formats
       .filter(
-        (audioFomrat) =>
-          audioFomrat.container === format && !audioFomrat.hasVideo
+        (audioFormat) =>
+          audioFormat.container === "mp4" && !audioFormat.hasVideo
       )
       .at(-1);
 
-    let formattedVideoFormats = [];
+    const webmAudioFormat = info.formats
+      .filter(
+        (audioFormat) =>
+          audioFormat.container === "webm" && !audioFormat.hasVideo
+      )
+      .at(-1);
 
-    videoFormats.reverse().forEach((vformat) => {
-      const resolutions = formattedVideoFormats.map((format) => format.res);
+    let formattedMp4VideoFormats = [];
+    let formattedWebmVideoFormats = [];
+
+    //! remove duplicate mp4 video formats
+    mp4VideoFormats.reverse().forEach((vformat) => {
+      const resolutions = formattedMp4VideoFormats.map((format) => format.res);
       if (resolutions.includes(vformat.qualityLabel.split("p")[0] + "p"))
         return;
-      formattedVideoFormats.push({
+      formattedMp4VideoFormats.push({
         itag: vformat.itag,
         size: formatBytes(
-          parseInt(vformat.contentLength) + parseInt(audioFormat.contentLength)
+          parseInt(vformat.contentLength) +
+            parseInt(mp4AudioFormat.contentLength)
+        ),
+        res: vformat.qualityLabel.split("p")[0] + "p",
+      });
+    });
+
+    //! remove duplicate webm video formats
+    webmVideoFormats.reverse().forEach((vformat) => {
+      const resolutions = formattedWebmVideoFormats.map((format) => format.res);
+      if (resolutions.includes(vformat.qualityLabel.split("p")[0] + "p"))
+        return;
+      formattedWebmVideoFormats.push({
+        itag: vformat.itag,
+        size: formatBytes(
+          parseInt(vformat.contentLength) +
+            parseInt(webmAudioFormat.contentLength)
         ),
         res: vformat.qualityLabel.split("p")[0] + "p",
       });
@@ -58,17 +87,13 @@ class YoutubeVideo {
     };
 
     return {
-      formats: formattedVideoFormats.reverse(),
+      formats: {
+        mp4: formattedMp4VideoFormats.reverse(),
+        webm: formattedWebmVideoFormats.reverse(),
+        mp3: mp4AudioFormat,
+      },
       videoDetails: videoDetails,
     };
-  }
-
-  async get_audio_info() {
-    const info = await ytdl.getInfo(this.url);
-    const audioFormat = info.formats.filter(
-      (audioFomrat) => audioFomrat.container === "mp4" && !audioFomrat.hasVideo
-    )[0];
-    return { format: audioFormat, details: info.videoDetails };
   }
 
   async download(itag, format) {
