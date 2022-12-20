@@ -90,7 +90,10 @@ class YoutubeVideo {
       formats: {
         mp4: formattedMp4VideoFormats.reverse(),
         webm: formattedWebmVideoFormats.reverse(),
-        mp3: mp4AudioFormat,
+        mp3: {
+          itag: mp4AudioFormat.itag,
+          size: formatBytes(parseInt(mp4AudioFormat.contentLength)),
+        },
       },
       videoDetails: videoDetails,
     };
